@@ -1,0 +1,84 @@
+import React from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+
+const ProfileCard = () => {
+  // Random image URL from Picsum Photos
+  const randomImageUrl = `https://picsum.photos/150/150?random=${Math.random()}`;
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.card}>
+        {/* Profile Picture */}
+        <Image
+          source={{ uri: randomImageUrl }} // Random image URL
+          style={styles.profileImage}
+        />
+        {/* Name and Bio */}
+        <View style={styles.infoContainer}>
+          <Text style={styles.name}>Your Name</Text>
+          <Text style={styles.bio}>This is a short bio about you. You can write something interesting here!</Text>
+        </View>
+        {/* Follow Button */}
+        <TouchableOpacity style={styles.followButton}>
+          <Text style={styles.followButtonText}>Follow</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center', // Centers vertically
+    alignItems: 'center', // Centers horizontally
+    backgroundColor: '#f0f0f0', // Background color for the whole page
+  },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    width: '90%', // Adjust the width of the card
+    flexWrap: 'wrap', // Ensures content wraps properly
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginRight: 16,
+  },
+  infoContainer: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  bio: {
+    fontSize: 14,
+    color: '#666',
+  },
+  followButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  followButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+});
+
+export default ProfileCard;

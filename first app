@@ -1,0 +1,143 @@
+import React, { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, Button, Switch, StatusBar } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
+
+export default function App() {
+  const [orientation, setOrientation] = useState('PORTRAIT');
+  const [isLocked, setIsLocked] = useState(false);
+
+  // Detect screen orientation
+  const detectOrientation = async () => {
+    const orientation = await ScreenOrientation.getOrientationAsync();
+    if (orientation === ScreenOrientation.Orientation.PORTRAIT_UP || orientation === ScreenOrientation.Orientation.PORTRAIT_DOWN) {
+      setOrientation('PORTRAIT');
+    } else {
+      setOrientation('LANDSCAPE');
+    }
+  };
+
+  // Toggle screen orientation
+  const toggleOrientation = async () => {
+    if (!isLocked) {
+      if (orientation === 'PORTRAIT') {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+      } else {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+      }
+      detectOrientation(); // Update orientation
+    }
+  };
+
+  // Toggle lock/unlock screen orientation
+  const toggleLock = async () => {
+    if (isLocked) {
+      await ScreenOrientation.unlockAsync();
+    } else {
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    }
+    setIsLocked(!isLocked);
+  };
+
+  // Detect orientation changes
+  useEffect(() => {
+    detectOrientation();
+
+    const subscription = ScreenOrientation.addOrientationChangeListener(() => {
+      detectOrientation();
+    });
+
+    return () => {
+      ScreenOrientation.removeOrientationChangeListener(subscription);
+    };
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f0f0f0" />
+      <Text style={styles.header}>Screen Orientation Demo</Text>
+      <View style={styles.content}>
+        <Text style={styles.modeText}>
+          Current Mode: {orientation === 'PORTRAIT' ? 'Portrait 🌄' : 'Landscape 🌅'}
+        </Text>
+        <View style={orientation === 'PORTRAIT' ? styles.boxPortrait : styles.boxLandscape}>
+          <Text style={styles.boxText}>Hello, Android Interface!</Text>
+        </View>
+        <Button
+          title={orientation === 'PORTRAIT' ? 'Switch to Landscape' : 'Switch to Portrait'}
+          onPress={toggleOrientation}
+          disabled={isLocked}
+          color="#6200ee"
+        />
+        <View style={styles.lockContainer}>
+          <Text style={styles.lockText}>Lock Orientation:</Text>
+          <Switch
+            value={isLocked}
+            onValueChange={toggleLock}
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={isLocked ? '#6200ee' : '#f4f3f4'}
+          />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+    paddingTop: 50,
+    paddingHorizontal: 20,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modeText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#555',
+    marginBottom: 20,
+  },
+  boxPortrait: {
+    width: 200,
+    height: 200,
+    backgroundColor: '#6200ee',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    marginBottom: 30,
+  },
+  boxLandscape: {
+    width: 300,
+    height: 150,
+    backgroundColor: '#03dac6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    marginBottom: 30,
+  },
+  boxText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  lockContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  lockText: {
+    fontSize: 16,
+    color: '#333',
+    marginRight: 10,
+  },
+});

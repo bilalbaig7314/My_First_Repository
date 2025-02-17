@@ -1,0 +1,89 @@
+import React, { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, Button } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
+
+export default function App() {
+  const [orientation, setOrientation] = useState('PORTRAIT');
+
+  // Screen orientation change ko detect karne ke liye
+  const detectOrientation = async () => {
+    const orientation = await ScreenOrientation.getOrientationAsync();
+    if (orientation === ScreenOrientation.Orientation.PORTRAIT_UP || orientation === ScreenOrientation.Orientation.PORTRAIT_DOWN) {
+      setOrientation('PORTRAIT');
+    } else {
+      setOrientation('LANDSCAPE');
+    }
+  };
+
+  // Button press par orientation change karne ke liye
+  const toggleOrientation = async () => {
+    if (orientation === 'PORTRAIT') {
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    } else {
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    }
+    detectOrientation(); // Orientation update karne ke liye
+  };
+
+  // Jab app load ho ya screen rotate ho, tab orientation detect karein
+  useEffect(() => {
+    detectOrientation();
+
+    const subscription = ScreenOrientation.addOrientationChangeListener(() => {
+      detectOrientation();
+    });
+
+    return () => {
+      ScreenOrientation.removeOrientationChangeListener(subscription);
+    };
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>
+        {orientation === 'PORTRAIT' ? 'Portrait Mode' : 'Landscape Mode'}
+      </Text>
+      <View style={orientation === 'PORTRAIT' ? styles.boxPortrait : styles.boxLandscape}>
+        <Text style={styles.boxText}>Hello, Android Interface!</Text>
+      </View>
+      <Button
+        title={orientation === 'PORTRAIT' ? 'Switch to Landscape' : 'Switch to Portrait'}
+        onPress={toggleOrientation}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  boxPortrait: {
+    width: 200,
+    height: 200,
+    backgroundColor: 'lightblue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  boxLandscape: {
+    width: 300,
+    height: 150,
+    backgroundColor: 'lightgreen',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  boxText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
